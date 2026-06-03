@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — Vic's Tile | Kitchen & Bath Remodeling Tips</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1b3a5c; --navy-dark: #122840; --gold: #c8a96e;
+    --warm-white: #f7f5f1; --off-white: #edeae3;
+    --charcoal: #1e1c1a; --muted: #6b7280;
+    --tile-line: rgba(27,58,92,0.1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--warm-white); color: var(--charcoal); font-family: 'DM Sans', sans-serif; font-weight: 300; overflow-x: hidden; }
+
+  /* NAV */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 18px 56px; background: rgba(247,245,241,0.95); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(27,58,92,0.1); }
+  .nav-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-logo-icon { width: 38px; height: 38px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; transform: rotate(45deg); }
+  .nav-logo-icon div { background: var(--navy); }
+  .nav-logo-icon div:nth-child(2), .nav-logo-icon div:nth-child(3) { background: var(--gold); }
+  .nav-brand-text { display: flex; flex-direction: column; }
+  .nav-brand-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 900; color: var(--navy); letter-spacing: 0.06em; line-height: 1.1; }
+  .nav-brand-sub { font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--navy); }
+  .nav-cta { background: var(--navy); color: #fff; padding: 11px 26px; font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: background 0.2s; }
+  .nav-cta:hover { background: var(--navy-dark); }
+
+  /* HERO */
+  .blog-hero { padding: 140px 80px 80px; background: var(--navy); position: relative; overflow: hidden; }
+  .blog-hero::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(200,169,110,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(200,169,110,0.06) 1px, transparent 1px); background-size: 64px 64px; }
+  .blog-hero-inner { position: relative; z-index: 1; max-width: 700px; }
+  .hero-eyebrow { font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+  .hero-eyebrow::before { content: ''; display: block; width: 28px; height: 1px; background: var(--gold); }
+  .blog-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 900; line-height: 1.05; color: #fff; margin-bottom: 24px; }
+  .blog-hero h1 em { font-style: italic; color: var(--gold); }
+  .blog-hero p { font-size: 1rem; line-height: 1.75; color: rgba(255,255,255,0.55); max-width: 480px; }
+
+  /* BLOG GRID */
+  .blog-main { padding: 80px; }
+  .blog-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 64px; max-width: 1200px; margin: 0 auto; }
+
+  /* FEATURED POST */
+  .featured-post { }
+  .featured-label { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .featured-label::before { content: ''; width: 20px; height: 1px; background: var(--gold); }
+  .featured-post .post-img { width: 100%; aspect-ratio: 16/9; background: var(--navy); overflow: hidden; margin-bottom: 32px; position: relative; }
+  .featured-post .post-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+  .featured-post .post-img:hover img { transform: scale(1.03); }
+  .post-meta { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .post-cat { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; background: var(--gold); color: var(--navy-dark); padding: 4px 12px; font-weight: 500; }
+  .post-date { font-size: 0.75rem; color: var(--muted); }
+  .featured-post h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem, 2.5vw, 2.4rem); font-weight: 700; line-height: 1.2; color: var(--navy); margin-bottom: 16px; }
+  .featured-post h2 a { text-decoration: none; color: inherit; transition: color 0.2s; }
+  .featured-post h2 a:hover { color: var(--gold); }
+  .featured-post .excerpt { font-size: 0.95rem; line-height: 1.8; color: var(--muted); margin-bottom: 28px; }
+  .read-more { display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--navy); text-decoration: none; font-weight: 500; border-bottom: 1px solid var(--navy); padding-bottom: 2px; transition: color 0.2s, border-color 0.2s; }
+  .read-more:hover { color: var(--gold); border-color: var(--gold); }
+  .read-more::after { content: "→"; }
+
+  /* DIVIDER */
+  .post-divider { border: none; border-top: 1px solid var(--tile-line); margin: 56px 0; }
+
+  /* SIDEBAR */
+  .blog-sidebar { display: flex; flex-direction: column; gap: 48px; }
+  .sidebar-section h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--navy); margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid var(--gold); display: inline-block; }
+  
+  /* SIDEBAR POSTS */
+  .sidebar-post { display: flex; flex-direction: column; gap: 8px; padding-bottom: 20px; border-bottom: 1px solid var(--tile-line); margin-bottom: 4px; }
+  .sidebar-post:last-child { border-bottom: none; }
+  .sidebar-post .post-cat { align-self: flex-start; }
+  .sidebar-post h4 { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; line-height: 1.3; color: var(--navy); }
+  .sidebar-post h4 a { text-decoration: none; color: inherit; transition: color 0.2s; }
+  .sidebar-post h4 a:hover { color: var(--gold); }
+  .sidebar-post .post-date { font-size: 0.72rem; color: var(--muted); }
+
+  /* CATEGORIES */
+  .categories-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .categories-list li a { display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: var(--muted); text-decoration: none; padding: 8px 0; border-bottom: 1px solid var(--tile-line); transition: color 0.2s; }
+  .categories-list li a:hover { color: var(--navy); }
+  .categories-list li a span { background: var(--off-white); font-size: 0.7rem; padding: 2px 8px; color: var(--navy); }
+
+  /* CTA BOX */
+  .sidebar-cta { background: var(--navy); padding: 32px 28px; }
+  .sidebar-cta h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #fff; margin-bottom: 12px; }
+  .sidebar-cta p { font-size: 0.82rem; line-height: 1.7; color: rgba(255,255,255,0.55); margin-bottom: 24px; }
+  .sidebar-cta a { display: block; text-align: center; background: var(--gold); color: var(--navy-dark); padding: 12px 20px; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; font-weight: 500; transition: background 0.2s; }
+  .sidebar-cta a:hover { background: #fff; }
+
+  /* ARTICLE PAGE */
+  .article-page { display: none; }
+  .article-page.active { display: block; }
+  .article-header { padding: 140px 80px 60px; background: var(--navy); position: relative; overflow: hidden; }
+  .article-header::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(200,169,110,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(200,169,110,0.06) 1px, transparent 1px); background-size: 64px 64px; }
+  .article-header-inner { position: relative; z-index: 1; max-width: 760px; }
+  .back-link { display: inline-flex; align-items: center; gap: 8px; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); text-decoration: none; margin-bottom: 28px; transition: color 0.2s; cursor: pointer; }
+  .back-link:hover { color: var(--gold); }
+  .back-link::before { content: "←"; }
+  .article-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 900; line-height: 1.1; color: #fff; margin-bottom: 20px; }
+  .article-header .post-meta { margin-bottom: 0; }
+  .article-body { max-width: 760px; margin: 0 auto; padding: 64px 80px 100px; }
+  .article-body p { font-size: 1rem; line-height: 1.9; color: #3a3836; margin-bottom: 24px; }
+  .article-body h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--navy); margin: 48px 0 20px; }
+  .article-body h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--navy); margin: 32px 0 14px; }
+  .article-body ul, .article-body ol { padding-left: 24px; margin-bottom: 24px; }
+  .article-body li { font-size: 1rem; line-height: 1.85; color: #3a3836; margin-bottom: 8px; }
+  .article-body .tip-box { background: var(--off-white); border-left: 3px solid var(--gold); padding: 20px 24px; margin: 32px 0; }
+  .article-body .tip-box p { margin-bottom: 0; font-size: 0.92rem; }
+  .article-body .tip-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: 8px; }
+
+  /* FOOTER */
+  footer { background: var(--navy-dark); padding: 28px 80px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .footer-brand { display: flex; align-items: center; gap: 10px; }
+  .footer-icon { width: 28px; height: 28px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 1.5px; transform: rotate(45deg); }
+  .footer-icon div { background: rgba(200,169,110,0.5); }
+  .footer-icon div:nth-child(2), .footer-icon div:nth-child(3) { background: rgba(200,169,110,0.25); }
+  .footer-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 900; color: rgba(255,255,255,0.45); }
+  .footer-copy { font-size: 0.7rem; color: rgba(255,255,255,0.2); }
+
+  /* RESPONSIVE */
+  @media (max-width: 960px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .blog-hero, .blog-main { padding-left: 28px; padding-right: 28px; }
+    .blog-grid { grid-template-columns: 1fr; gap: 48px; }
+    .article-header { padding: 120px 28px 48px; }
+    .article-body { padding: 48px 28px 80px; }
+    footer { padding: 24px 28px; flex-direction: column; text-align: center; }
+  }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .blog-hero-inner { animation: fadeUp 0.7s 0.1s both; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="index.html">
+    <div class="nav-logo-icon"><div></div><div></div><div></div><div></div></div>
+    <div class="nav-brand-text">
+      <span class="nav-brand-name">VIC'S TILE</span>
+      <span class="nav-brand-sub">Kitchen &amp; Bath Remodeling</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html#before-after">Our Work</a></li>
+    <li><a href="index.html#portfolio">Portfolio</a></li>
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#about">About</a></li>
+    <li><a href="blog.html" class="active">Blog</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+  <a class="nav-cta" href="index.html#contact">Free Estimate</a>
+</nav>
+
+<!-- BLOG INDEX -->
+<div id="blog-index">
+
+  <div class="blog-hero">
+    <div class="blog-hero-inner">
+      <p class="hero-eyebrow">Tips &amp; Inspiration</p>
+      <h1>The Tile <em>Journal</em></h1>
+      <p>Expert advice on kitchen and bathroom remodeling, tile trends, maintenance tips, and inspiration for your next project.</p>
+    </div>
+  </div>
+
+  <div class="blog-main">
+    <div class="blog-grid">
+
+      <!-- MAIN POSTS -->
+      <div class="main-posts">
+
+        <!-- POST 1 - FEATURED -->
+        <div class="featured-post">
+          <p class="featured-label">Featured</p>
+          <div class="post-img">
+            <img src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=800&q=80" alt="Bathroom tile remodel">
+          </div>
+          <div class="post-meta">
+            <span class="post-cat">Bathroom</span>
+            <span class="post-date">May 15, 2026</span>
+          </div>
+          <h2><a href="#" onclick="showArticle('article1'); return false;">5 Tile Trends Transforming Bay Area Bathrooms in 2026</a></h2>
+          <p class="excerpt">From large-format porcelain to handcrafted zellige, bathroom tile design has never been more exciting. Here's what homeowners across Livermore, Pleasanton, and San Ramon are choosing for their remodels this year.</p>
+          <a href="#" class="read-more" onclick="showArticle('article1'); return false;">Read Article</a>
+        </div>
+
+        <hr class="post-divider">
+
+        <!-- POST 2 -->
+        <div class="featured-post">
+          <div class="post-img">
+            <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80" alt="Kitchen backsplash">
+          </div>
+          <div class="post-meta">
+            <span class="post-cat">Kitchen</span>
+            <span class="post-date">April 28, 2026</span>
+          </div>
+          <h2><a href="#" onclick="showArticle('article2'); return false;">How to Choose the Right Kitchen Backsplash: A Complete Guide</a></h2>
+          <p class="excerpt">Your kitchen backsplash does more than protect your walls — it sets the tone for the entire space. We break down everything you need to consider before making your selection.</p>
+          <a href="#" class="read-more" onclick="showArticle('article2'); return false;">Read Article</a>
+        </div>
+
+        <hr class="post-divider">
+
+        <!-- POST 3 -->
+        <div class="featured-post">
+          <div class="post-img">
+            <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80" alt="Tile maintenance">
+          </div>
+          <div class="post-meta">
+            <span class="post-cat">Maintenance</span>
+            <span class="post-date">April 10, 2026</span>
+          </div>
+          <h2><a href="#" onclick="showArticle('article3'); return false;">How to Keep Your Tile Looking Brand New: Grout &amp; Tile Care Tips</a></h2>
+          <p class="excerpt">Beautiful tile work is an investment. With the right maintenance routine, your tile will look just as stunning in ten years as it does the day it's installed. Here's how.</p>
+          <a href="#" class="read-more" onclick="showArticle('article3'); return false;">Read Article</a>
+        </div>
+
+      </div>
+
+      <!-- SIDEBAR -->
+      <aside class="blog-sidebar">
+
+        <div class="sidebar-cta">
+          <h3>Ready to Transform Your Home?</h3>
+          <p>Get a free estimate from Vic and see what's possible for your kitchen or bathroom.</p>
+          <a href="index.html#contact">Get Free Estimate</a>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Recent Posts</h3>
+          <div class="sidebar-post">
+            <span class="post-cat">Bathroom</span>
+            <h4><a href="#" onclick="showArticle('article1'); return false;">5 Tile Trends Transforming Bay Area Bathrooms in 2026</a></h4>
+            <span class="post-date">May 15, 2026</span>
+          </div>
+          <div class="sidebar-post">
+            <span class="post-cat">Kitchen</span>
+            <h4><a href="#" onclick="showArticle('article2'); return false;">How to Choose the Right Kitchen Backsplash</a></h4>
+            <span class="post-date">April 28, 2026</span>
+          </div>
+          <div class="sidebar-post">
+            <span class="post-cat">Maintenance</span>
+            <h4><a href="#" onclick="showArticle('article3'); return false;">How to Keep Your Tile Looking Brand New</a></h4>
+            <span class="post-date">April 10, 2026</span>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Categories</h3>
+          <ul class="categories-list">
+            <li><a href="#">Bathroom Remodeling <span>1</span></a></li>
+            <li><a href="#">Kitchen Tile <span>1</span></a></li>
+            <li><a href="#">Maintenance &amp; Care <span>1</span></a></li>
+            <li><a href="#">Custom Mosaics <span>0</span></a></li>
+            <li><a href="#">Fireplace &amp; Mantels <span>0</span></a></li>
+            <li><a href="#">Inspiration <span>0</span></a></li>
+          </ul>
+        </div>
+
+      </aside>
+    </div>
+  </div>
+</div>
+
+<!-- ARTICLE 1 -->
+<div id="article1" class="article-page">
+  <div class="article-header">
+    <div class="article-header-inner">
+      <span class="back-link" onclick="showBlog()">Back to Blog</span>
+      <div class="post-meta">
+        <span class="post-cat">Bathroom</span>
+        <span class="post-date" style="color:rgba(255,255,255,0.45);">May 15, 2026</span>
+      </div>
+      <h1>5 Tile Trends Transforming Bay Area Bathrooms in 2026</h1>
+    </div>
+  </div>
+  <div class="article-body">
+    <p>Bathroom remodeling has evolved significantly over the past few years, and 2026 is shaping up to be one of the most exciting years for tile design. Homeowners across Livermore, Pleasanton, San Ramon, and Danville are moving away from safe, predictable choices and embracing bolder, more personalized tile work. Here are the five trends we're seeing most in our projects right now.</p>
+
+    <h2>1. Large-Format Porcelain Tiles</h2>
+    <p>The days of small mosaic floor tiles are giving way to large-format porcelain slabs — think 24x48 inch tiles that create a seamless, spa-like feel. Fewer grout lines mean a cleaner look and easier maintenance. These oversized tiles work beautifully on shower walls and bathroom floors, creating a sense of space even in smaller bathrooms.</p>
+    <div class="tip-box"><p class="tip-label">Vic's Tip</p><p>Large-format tiles require a very flat, properly prepared substrate. Don't skip the floor leveling step — it makes all the difference in the final result.</p></div>
+
+    <h2>2. Warm Neutral Tones</h2>
+    <p>Cool grays are out. Warm creams, taupes, and greiges are dominating bathroom palettes in 2026. These earth-toned tiles pair beautifully with natural wood vanities, matte black fixtures, and warm brass hardware — a combination we're installing constantly across the Tri-Valley.</p>
+
+    <h2>3. Statement Shower Floors</h2>
+    <p>The shower floor is becoming a canvas for artistic expression. Custom stone mosaics — including intricate patterns, sea turtles, and nature-inspired designs — are one of Vic's Tile's most requested specialties. A custom mosaic floor transforms an ordinary shower into a true showpiece that visitors always notice first.</p>
+
+    <h2>4. Textured Wall Tiles</h2>
+    <p>Flat, glossy wall tiles are being replaced by dimensional, textured surfaces — rippled ceramics, handmade-look tiles with slight irregularities, and 3D geometric patterns that play with light throughout the day. These add depth and interest without requiring complex installation patterns.</p>
+
+    <h2>5. Floor-to-Ceiling Tile</h2>
+    <p>Rather than tiling just the shower surround, more homeowners are taking tile all the way to the ceiling — and even across an entire accent wall. This creates a cohesive, enveloping feel that makes bathrooms feel intentional and luxurious rather than simply functional.</p>
+
+    <div class="tip-box"><p class="tip-label">Ready to Remodel?</p><p>If any of these trends caught your eye, give Vic a call at (925) 699-8549 or fill out the contact form at vicstile.com. We'll walk you through the options and provide a free estimate.</p></div>
+  </div>
+</div>
+
+<!-- ARTICLE 2 -->
+<div id="article2" class="article-page">
+  <div class="article-header">
+    <div class="article-header-inner">
+      <span class="back-link" onclick="showBlog()">Back to Blog</span>
+      <div class="post-meta">
+        <span class="post-cat">Kitchen</span>
+        <span class="post-date" style="color:rgba(255,255,255,0.45);">April 28, 2026</span>
+      </div>
+      <h1>How to Choose the Right Kitchen Backsplash: A Complete Guide</h1>
+    </div>
+  </div>
+  <div class="article-body">
+    <p>The kitchen backsplash is one of the most impactful design decisions in any kitchen remodel. It's highly visible, highly functional, and it ties together your cabinets, countertops, and appliances into a cohesive space. But with so many materials, patterns, and colors available, choosing the right one can feel overwhelming. Here's how to think through it.</p>
+
+    <h2>Start with Your Countertops</h2>
+    <p>Your backsplash should complement your countertops, not compete with them. If you have a busy, veined quartz or granite countertop, a simple subway tile or solid-color backsplash lets the countertop shine. If your countertops are understated — white quartz or solid butcher block — your backsplash has room to make a statement.</p>
+
+    <h2>Consider the Cabinet Color</h2>
+    <p>White cabinets are the most versatile canvas and work with virtually any backsplash. Dark navy or charcoal cabinets (a popular choice we're installing frequently in Livermore and Pleasanton) pair beautifully with light, bright tiles like white subway, cream zellige, or pale stone. Wood-toned cabinets work best with warm neutral tiles that echo the natural tones.</p>
+    <div class="tip-box"><p class="tip-label">Vic's Tip</p><p>Always look at backsplash samples in your actual kitchen under your actual lighting before committing. Tile looks dramatically different under warm incandescent light versus cool LED versus natural daylight.</p></div>
+
+    <h2>Material Options</h2>
+    <h3>Ceramic &amp; Porcelain</h3>
+    <p>The most popular choice for good reason — durable, easy to clean, available in endless colors and formats, and relatively affordable. Classic subway tile in a 3x6 or 4x8 format remains timeless and works in nearly every kitchen style.</p>
+    <h3>Natural Stone</h3>
+    <p>Marble, travertine, and slate backsplashes add warmth and organic character that manufactured tile can't fully replicate. They do require sealing and more careful maintenance to prevent staining, particularly near the stove.</p>
+    <h3>Glass Tile</h3>
+    <p>Glass tiles add a luminous quality and work especially well in kitchens with limited natural light. They reflect both natural and artificial light beautifully. The warm amber and gold glass mosaic tiles we frequently install create a rich, jewel-like effect behind a range.</p>
+
+    <h2>Don't Forget the Grout</h2>
+    <p>Grout color has a massive impact on the final look. Matching grout to the tile creates a seamless, monolithic effect. Contrasting grout (dark grout with light tile, or vice versa) emphasizes the tile pattern and creates more visual interest. For kitchen backsplashes near the stove, we always recommend epoxy grout — it's stain-resistant and far easier to keep clean over time.</p>
+
+    <div class="tip-box"><p class="tip-label">Get Expert Help</p><p>Not sure what will work best in your kitchen? Vic has installed hundreds of kitchen backsplashes across the Tri-Valley and can walk you through the right choice for your specific space. Call (925) 699-8549 for a free consultation.</p></div>
+  </div>
+</div>
+
+<!-- ARTICLE 3 -->
+<div id="article3" class="article-page">
+  <div class="article-header">
+    <div class="article-header-inner">
+      <span class="back-link" onclick="showBlog()">Back to Blog</span>
+      <div class="post-meta">
+        <span class="post-cat">Maintenance</span>
+        <span class="post-date" style="color:rgba(255,255,255,0.45);">April 10, 2026</span>
+      </div>
+      <h1>How to Keep Your Tile Looking Brand New: Grout &amp; Tile Care Tips</h1>
+    </div>
+  </div>
+  <div class="article-body">
+    <p>One of the most common questions we get after completing a tile installation is: "How do I keep it looking this good?" The answer is simpler than most people expect. With the right routine and the right products, your tile can look installation-fresh for decades.</p>
+
+    <h2>Sealing: The Most Important Step</h2>
+    <p>Most natural stone tiles and most grout lines need to be sealed after installation — and periodically resealed over time. Sealer fills the microscopic pores in stone and grout, preventing moisture, oil, and staining agents from penetrating the surface. Without sealer, even a small amount of red wine or cooking oil can permanently stain grout within minutes.</p>
+    <div class="tip-box"><p class="tip-label">How Often to Reseal</p><p>Shower grout: every 1-2 years. Kitchen backsplash grout: every 2-3 years. Natural stone floors: every 1-3 years depending on traffic and stone type. A simple test — drop water on the surface. If it beads up, you're sealed. If it absorbs, it's time to reseal.</p></div>
+
+    <h2>Daily &amp; Weekly Cleaning</h2>
+    <p>For regular cleaning, less is more. Avoid harsh acidic cleaners (including vinegar, which is commonly recommended but actually etches natural stone and degrades grout over time). Instead, use a pH-neutral tile cleaner or simply warm water with a few drops of dish soap. A soft microfiber mop or cloth is all you need for most surfaces.</p>
+    <p>For shower tiles, the single best habit is squeegeeing the walls after every shower. It takes 30 seconds and dramatically reduces soap scum buildup and hard water deposits.</p>
+
+    <h2>Tackling Grout Discoloration</h2>
+    <p>Grout that has turned gray or brown is usually a combination of soap scum, hard water minerals, and mildew — not permanent staining. A grout-specific cleaner with a stiff brush will restore most grout to near-original color. For stubborn discoloration, an oxygen bleach solution (not chlorine bleach, which can damage colored grout) applied for 10-15 minutes works well.</p>
+    <p>If grout has cracked or is coming loose, don't ignore it. Deteriorating grout allows water to penetrate behind the tile, leading to substrate damage that can require a full retile to fix properly. Regrouting a section is a straightforward repair that protects a much larger investment.</p>
+
+    <h2>Hard Water &amp; Mineral Deposits</h2>
+    <p>Hard water is common throughout the Tri-Valley and leaves white, chalky deposits on tile and glass. A solution of warm water and a small amount of phosphoric acid-based cleaner (found at tile supply stores) dissolves mineral deposits effectively. For daily prevention, a water softener or shower filter is worth considering if you're seeing heavy buildup.</p>
+
+    <div class="tip-box"><p class="tip-label">Need a Refresh?</p><p>If your existing tile is looking worn, stained, or dated, Vic's Tile offers regrouting and tile restoration services in addition to full remodels. Sometimes a regrout and reseal is all it takes to make a bathroom look brand new. Call (925) 699-8549.</p></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <div class="footer-icon"><div></div><div></div><div></div><div></div></div>
+    <span class="footer-name">VIC'S TILE</span>
+  </div>
+  <p class="footer-copy">&copy; 2026 Vic's Tile. All rights reserved. &nbsp;|&nbsp; CA License #857849</p>
+</footer>
+
+<script>
+function showArticle(id) {
+  document.getElementById('blog-index').style.display = 'none';
+  document.querySelectorAll('.article-page').forEach(a => a.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function showBlog() {
+  document.getElementById('blog-index').style.display = 'block';
+  document.querySelectorAll('.article-page').forEach(a => a.classList.remove('active'));
+  window.scrollTo(0, 0);
+}
+</script>
+
+</body>
+</html>
