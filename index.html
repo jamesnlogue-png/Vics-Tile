@@ -195,9 +195,9 @@
 
   /* RESPONSIVE */
   @media(max-width:960px){
-    nav{padding:12px 24px;}
+    #main-nav{padding:12px 24px !important;}
     .nav-links{display:none;}
-    .brand-banner{padding-top:120px;}
+    .brand-banner{padding-top:160px;}
     .hero{grid-template-columns:1fr;min-height:auto;}
     .hero-left{padding:100px 28px 56px;}
     .hero-right{min-height:360px;}
@@ -269,7 +269,7 @@
 </head>
 <body>
 
-<nav style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:flex-end;padding:12px 56px;background:rgba(247,245,241,0.95);backdrop-filter:blur(14px);border-bottom:1px solid rgba(27,58,92,0.1);">
+<nav id="main-nav" style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:flex-end;padding:12px 56px;background:rgba(247,245,241,0.95);backdrop-filter:blur(14px);border-bottom:1px solid rgba(27,58,92,0.1);">
   <ul style="display:flex;gap:32px;list-style:none;margin-right:32px;">
     <li><a href="#before-after" style="font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;">Our Work</a></li>
     <li><a href="gallery.html" style="font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;">Gallery</a></li>
@@ -528,6 +528,16 @@ if (form) {
     }
   });
 }
+
+function adjustBannerOffset(){
+  var nav = document.getElementById('main-nav');
+  var banner = document.querySelector('.brand-banner');
+  if(nav && banner){
+    banner.style.paddingTop = nav.offsetHeight + 'px';
+  }
+}
+window.addEventListener('load', adjustBannerOffset);
+window.addEventListener('resize', adjustBannerOffset);
 </script>
 </body>
 </html>
