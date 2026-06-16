@@ -196,7 +196,7 @@
   /* RESPONSIVE */
   @media(max-width:960px){
     #main-nav{padding:12px 24px !important;}
-    .nav-links{display:none;}
+    .nav-links{display:none !important;}
     .brand-banner{padding-top:160px;}
     .hero{grid-template-columns:1fr;min-height:auto;}
     .hero-left{padding:100px 28px 56px;}
@@ -270,7 +270,7 @@
 <body>
 
 <nav id="main-nav" style="position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:flex-end;padding:12px 56px;background:rgba(247,245,241,0.95);backdrop-filter:blur(14px);border-bottom:1px solid rgba(27,58,92,0.1);">
-  <ul style="display:flex;gap:32px;list-style:none;margin-right:32px;">
+  <ul class="nav-links" style="display:flex;gap:32px;list-style:none;margin-right:32px;">
     <li><a href="#before-after" style="font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;">Our Work</a></li>
     <li><a href="gallery.html" style="font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;">Gallery</a></li>
     <li><a href="#services" style="font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;">Services</a></li>
