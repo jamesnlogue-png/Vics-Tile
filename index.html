@@ -539,5 +539,270 @@ function adjustBannerOffset(){
 window.addEventListener('load', adjustBannerOffset);
 window.addEventListener('resize', adjustBannerOffset);
 </script>
+
+<!-- VIC'S TILE AI CHAT WIDGET -->
+<style>
+  #vt-chat-bubble {
+    position:fixed; bottom:28px; right:28px; z-index:9999;
+    width:56px; height:56px; border-radius:50%;
+    background:#122840; border:2px solid #c8a96e;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 20px rgba(18,40,64,0.35);
+    transition:transform 0.2s, box-shadow 0.2s;
+  }
+  #vt-chat-bubble:hover { transform:scale(1.08); box-shadow:0 6px 28px rgba(18,40,64,0.45); }
+  #vt-chat-bubble svg { width:26px; height:26px; fill:#c8a96e; }
+  #vt-chat-window {
+    position:fixed; bottom:96px; right:28px; z-index:9999;
+    width:340px; max-width:calc(100vw - 40px);
+    background:#f7f5f1; border-radius:4px;
+    box-shadow:0 8px 40px rgba(18,40,64,0.22);
+    display:none; flex-direction:column;
+    font-family:'DM Sans',sans-serif;
+    border:1px solid rgba(18,40,64,0.12);
+    overflow:hidden;
+  }
+  #vt-chat-window.open { display:flex; }
+  #vt-chat-header {
+    background:#122840; padding:16px 20px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  #vt-chat-header-left { display:flex; align-items:center; gap:10px; }
+  #vt-chat-avatar {
+    width:36px; height:36px; border-radius:50%;
+    background:#c8a96e; display:flex; align-items:center; justify-content:center;
+    font-family:'Playfair Display',serif; font-size:1rem; color:#122840; font-weight:700;
+  }
+  #vt-chat-title { color:#f7f5f1; font-size:0.82rem; letter-spacing:0.08em; text-transform:uppercase; }
+  #vt-chat-subtitle { color:rgba(200,169,110,0.8); font-size:0.7rem; margin-top:1px; }
+  #vt-chat-close {
+    background:none; border:none; cursor:pointer;
+    color:rgba(255,255,255,0.5); font-size:1.2rem; line-height:1; padding:4px;
+  }
+  #vt-chat-close:hover { color:#fff; }
+  #vt-chat-messages {
+    flex:1; overflow-y:auto; padding:16px; display:flex;
+    flex-direction:column; gap:12px; max-height:340px; min-height:200px;
+  }
+  .vt-msg { max-width:85%; font-size:0.84rem; line-height:1.55; padding:10px 14px; border-radius:3px; }
+  .vt-msg.bot { background:#fff; color:#1e1c1a; border:1px solid rgba(18,40,64,0.1); align-self:flex-start; }
+  .vt-msg.user { background:#122840; color:#f7f5f1; align-self:flex-end; }
+  .vt-msg.typing { background:#fff; border:1px solid rgba(18,40,64,0.1); align-self:flex-start; color:#6b7280; font-style:italic; }
+  #vt-chat-input-row {
+    display:flex; gap:8px; padding:12px 16px;
+    border-top:1px solid rgba(18,40,64,0.1); background:#fff;
+  }
+  #vt-chat-input {
+    flex:1; border:1px solid rgba(18,40,64,0.2); border-radius:3px;
+    padding:9px 12px; font-size:0.83rem; font-family:'DM Sans',sans-serif;
+    color:#1e1c1a; background:#f7f5f1; outline:none;
+    resize:none; line-height:1.4;
+  }
+  #vt-chat-input:focus { border-color:#c8a96e; }
+  #vt-chat-send {
+    background:#122840; color:#c8a96e; border:none; border-radius:3px;
+    padding:9px 14px; cursor:pointer; font-size:0.78rem;
+    letter-spacing:0.08em; text-transform:uppercase; font-family:'DM Sans',sans-serif;
+    transition:background 0.15s;
+  }
+  #vt-chat-send:hover { background:#1b3a5c; }
+  #vt-chat-send:disabled { opacity:0.4; cursor:not-allowed; }
+  #vt-chat-disclaimer {
+    text-align:center; font-size:0.65rem; color:#6b7280;
+    padding:6px 16px 10px; background:#fff;
+  }
+</style>
+
+<!-- Bubble -->
+<div id="vt-chat-bubble" onclick="vtToggleChat()" title="Chat with us">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 2H4C2.9 2 2 2.9 2 4v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 10H6V10h12v2zm0-3H6V7h12v2z"/>
+  </svg>
+</div>
+
+<!-- Chat window -->
+<div id="vt-chat-window">
+  <div id="vt-chat-header">
+    <div id="vt-chat-header-left">
+      <div id="vt-chat-avatar">V</div>
+      <div>
+        <div id="vt-chat-title">Vic's Tile</div>
+        <div id="vt-chat-subtitle">Free estimate &middot; Usually replies instantly</div>
+      </div>
+    </div>
+    <button id="vt-chat-close" onclick="vtToggleChat()">&times;</button>
+  </div>
+  <div id="vt-chat-messages"></div>
+  <div id="vt-chat-input-row">
+    <textarea id="vt-chat-input" rows="1" placeholder="Ask about your project..."></textarea>
+    <button id="vt-chat-send" onclick="vtSendMessage()">Send</button>
+  </div>
+  <div id="vt-chat-disclaimer">Powered by AI &middot; <a href="#contact" style="color:#c8a96e;">Request a free estimate</a></div>
+</div>
+
+<script>
+(function(){
+  var APIKEY = 'YOUR_API_KEY_HERE';
+  var history = [];
+  var isOpen = false;
+  var greeted = false;
+
+  var SYSTEM = "You are a helpful assistant for Vic's Tile, a licensed tile contractor based in Livermore, CA serving the entire Bay Area (CA License #857849). Your job is to qualify leads and help potential customers. You are warm, professional, and knowledgeable about tile work.\n\nServices offered: bathroom remodels, shower remodels, custom shower tile, walk-in shower installation, kitchen remodeling, kitchen backsplash, floor tile installation, luxury vinyl plank flooring, fireplace tile remodel, custom mosaic tile, grout and tile repair, frameless shower installation.\n\nService area: Livermore, Pleasanton, Dublin, Danville, San Ramon, Walnut Creek, Concord, Lafayette, Alamo, Oakland, Berkeley, Hayward, San Jose, Santa Clara, Sunnyvale, San Francisco, Palo Alto, Menlo Park, Redwood City, Tracy, Manteca, Mountain House, and surrounding Bay Area cities.\n\nWhen someone seems interested in getting work done, ask these qualifying questions naturally (one at a time, not all at once):\n1. What type of project are they interested in?\n2. What city are they located in?\n3. What is their approximate timeline?\n4. What is their approximate budget range?\n5. Collect their name and best contact (phone or email) so Vic can follow up.\n\nOnce you have their contact info, let them know Vic will be in touch shortly to schedule a free estimate. Keep responses concise — 2-4 sentences max. Never make up prices; if asked about cost, give a rough range (e.g. small bathroom remodel $3,000–$8,000+) and encourage them to request a free estimate for an accurate quote.";
+
+  window.vtToggleChat = function(){
+    isOpen = !isOpen;
+    var win = document.getElementById('vt-chat-window');
+    if(isOpen){
+      win.classList.add('open');
+      if(!greeted){ vtGreet(); greeted = true; }
+      setTimeout(function(){ document.getElementById('vt-chat-input').focus(); }, 100);
+    } else {
+      win.classList.remove('open');
+    }
+  };
+
+  function vtGreet(){
+    vtAddMsg("Hi! I'm here to help with your tile or remodeling project. Are you thinking about a bathroom, kitchen, shower, flooring, or something else?", 'bot');
+  }
+
+  window.vtSendMessage = function(){
+    var input = document.getElementById('vt-chat-input');
+    var text = input.value.trim();
+    if(!text) return;
+    input.value = '';
+    input.style.height = 'auto';
+    vtAddMsg(text, 'user');
+    history.push({role:'user', content:text});
+    vtGetReply();
+  };
+
+  function vtAddMsg(text, type){
+    var msgs = document.getElementById('vt-chat-messages');
+    var div = document.createElement('div');
+    div.className = 'vt-msg ' + type;
+    div.textContent = text;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return div;
+  }
+
+  function vtGetReply(){
+    var send = document.getElementById('vt-chat-send');
+    send.disabled = true;
+    var typing = vtAddMsg('Typing...', 'typing');
+
+    fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': APIKEY,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:300,
+        system: SYSTEM,
+        messages: history
+      })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      typing.remove();
+      var reply = data.content && data.content[0] ? data.content[0].text : "Sorry, I'm having trouble connecting. Please use our contact form below!";
+      vtAddMsg(reply, 'bot');
+      history.push({role:'assistant', content:reply});
+      send.disabled = false;
+    })
+    .catch(function(){
+      typing.remove();
+      vtAddMsg("Sorry, I'm having trouble connecting right now. Please use our contact form below or call us directly!", 'bot');
+      send.disabled = false;
+    });
+  }
+
+  // Auto-resize textarea
+  document.addEventListener('DOMContentLoaded', function(){
+    var inp = document.getElementById('vt-chat-input');
+    if(inp){
+      inp.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); vtSendMessage(); }
+      });
+      inp.addEventListener('input', function(){
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+      });
+    }
+  });
+})();
+</script>
+<!-- END CHAT WIDGET -->
+
 </body>
 </html>
+<!-- EXPANDED ABOUT + FAQ FOR AI VISIBILITY -->
+<section style="background:#fff;padding:80px 80px;">
+  <div style="max-width:860px;margin:0 auto;">
+    <p class="section-label">About Vic's Tile</p>
+    <h2>Who We Are & <em>What We Do</em></h2>
+    <div style="margin-top:32px;color:#1e1c1a;font-size:0.95rem;line-height:1.85;display:grid;gap:20px;">
+      <p>Vic's Tile is a licensed tile and remodeling contractor based in Livermore, California, serving homeowners throughout the Bay Area. Owner and operator Victor holds California Contractor License #857849 and brings hands-on craftsmanship to every project — from single bathroom tile repairs to full whole-home flooring installations.</p>
+      <p>We specialize in bathroom remodels, shower remodels, custom tile showers, kitchen backsplash installation, floor tile installation, fireplace tile surrounds, luxury vinyl plank flooring, and custom mosaic tile work. Every project is completed by Victor personally — not subcontracted — which means consistent quality and direct accountability on every job.</p>
+      <p>Vic's Tile serves the entire Bay Area including Livermore, Pleasanton, Dublin, Danville, San Ramon, Walnut Creek, Concord, Lafayette, Alamo, Oakland, Berkeley, Hayward, San Jose, Santa Clara, Sunnyvale, San Francisco, Palo Alto, Menlo Park, Redwood City, Tracy, Manteca, Mountain House, and surrounding communities.</p>
+      <p>We offer free estimates with no obligation. Most projects begin within 2–4 weeks of estimate approval. References and photos of completed work are available upon request.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ SECTION -->
+<section style="background:var(--off-white);padding:80px 80px;" id="faq">
+  <div style="max-width:860px;margin:0 auto;">
+    <p class="section-label">FAQ</p>
+    <h2>Common Questions <em>Answered</em></h2>
+    <div style="margin-top:40px;display:grid;gap:0;">
+
+      <details style="border-bottom:1px solid rgba(27,58,92,0.12);padding:24px 0;" open>
+        <summary style="cursor:pointer;font-size:1rem;font-weight:500;color:var(--navy);letter-spacing:0.02em;list-style:none;display:flex;justify-content:space-between;align-items:center;">How much does a bathroom remodel cost in the Bay Area? <span style="color:var(--gold);font-size:1.2rem;">+</span></summary>
+        <p style="margin-top:14px;color:#1e1c1a;line-height:1.8;font-size:0.9rem;">A basic bathroom tile refresh (floor and shower surround) typically runs $2,500–$5,000. A mid-range bathroom remodel with new tile throughout, including shower, floor, and backsplash, generally costs $5,000–$12,000. A full luxury bathroom remodel with custom tile, heated floors, and premium materials can range from $12,000–$25,000+. Prices vary based on square footage, tile selection, and project complexity. We provide free detailed estimates so you know exactly what to expect before any work begins.</p>
+      </details>
+
+      <details style="border-bottom:1px solid rgba(27,58,92,0.12);padding:24px 0;">
+        <summary style="cursor:pointer;font-size:1rem;font-weight:500;color:var(--navy);letter-spacing:0.02em;list-style:none;display:flex;justify-content:space-between;align-items:center;">How much does a shower remodel cost? <span style="color:var(--gold);font-size:1.2rem;">+</span></summary>
+        <p style="margin-top:14px;color:#1e1c1a;line-height:1.8;font-size:0.9rem;">A standard shower tile replacement (re-tiling an existing shower) typically runs $1,500–$4,000 depending on size and tile choice. A full custom shower remodel — including waterproofing membrane, new tile, niche, bench, and frameless glass — generally costs $4,000–$10,000+. Walk-in shower conversions and frameless glass installations are priced separately. Contact us for a free estimate specific to your project.</p>
+      </details>
+
+      <details style="border-bottom:1px solid rgba(27,58,92,0.12);padding:24px 0;">
+        <summary style="cursor:pointer;font-size:1rem;font-weight:500;color:var(--navy);letter-spacing:0.02em;list-style:none;display:flex;justify-content:space-between;align-items:center;">How much does tile installation cost per square foot? <span style="color:var(--gold);font-size:1.2rem;">+</span></summary>
+        <p style="margin-top:14px;color:#1e1c1a;line-height:1.8;font-size:0.9rem;">Labor for tile installation in the Bay Area typically runs $8–$18 per square foot depending on tile size, pattern complexity, and substrate preparation required. Large-format tiles, herringbone patterns, and intricate mosaics are on the higher end. This does not include the cost of tile materials, which varies widely based on your selections. We can provide a complete all-in estimate including materials and labor.</p>
+      </details>
+
+      <details style="border-bottom:1px solid rgba(27,58,92,0.12);padding:24px 0;">
+        <summary style="cursor:pointer;font-size:1rem;font-weight:500;color:var(--navy);letter-spacing:0.02em;list-style:none;display:flex;justify-content:space-between;align-items:center;">Is Vic's Tile licensed and insured? <span style="color:var(--gold);font-size:1.2rem;">+</span></summary>
+        <p style="margin-top:14px;color:#1e1c1a;line-height:1.8;font-size:0.9rem;">Yes. Vic's Tile holds California Contractor License #857849. We are fully licensed to perform tile, flooring, and remodeling work throughout the state of California. We recommend always verifying a contractor's license before hiring — you can verify ours at the California Contractors State License Board (CSLB) website at cslb.ca.gov.</p>
+      </details>
+
+      <details style="border-bottom:1px solid rgba(27,58,92,0.12);padding:24px 0;">
+        <summary style="cursor:pointer;font-size:1rem;font-weight:500;color:var(--navy);letter-spacing:0.02em;list-style:none;display:flex;justify-content:space-between;align-items:center;">What areas do you serve? <span style="color:var(--gold);font-size:1.2rem;">+</span></summary>
+        <p style="margin-top:14px;color:#1e1c1a;line-height:1.8;font-size:0.9rem;">We serve the entire Bay Area from our base in Livermore, CA. This includes Pleasanton, Dublin, Danville, San Ramon, Walnut Creek, Concord, Lafayette, Alamo, Oakland, Berkeley, Hayward, San Jose, Santa Clara, Sunnyvale, San Francisco, Palo Alto, Menlo Park, Redwood City, San Mateo, Tracy, Manteca, Mountain House, and surrounding communities. Not sure if we cover your area? Give us a call or send a message — we're happy to let you know.</p>
+      </details>
+
+      <details style="border-bottom:1px solid rgba(27,58,92,0.12);padding:24px 0;">
+        <summary style="cursor:pointer;font-size:1rem;font-weight:500;color:var(--navy);letter-spacing:0.02em;list-style:none;display:flex;justify-content:space-between;align-items:center;">How long does a bathroom remodel take? <span style="color:var(--gold);font-size:1.2rem;">+</span></summary>
+        <p style="margin-top:14px;color:#1e1c1a;line-height:1.8;font-size:0.9rem;">A standard bathroom tile remodel typically takes 3–7 days depending on the scope of work. A full bathroom gut-and-remodel including waterproofing, backer board, tile installation, and grouting generally takes 5–10 business days. Tile requires a curing period before the shower can be used — typically 24–72 hours after grouting. We'll give you a clear timeline during your estimate so you can plan accordingly.</p>
+      </details>
+
+      <details style="border-bottom:1px solid rgba(27,58,92,0.12);padding:24px 0;">
+        <summary style="cursor:pointer;font-size:1rem;font-weight:500;color:var(--navy);letter-spacing:0.02em;list-style:none;display:flex;justify-content:space-between;align-items:center;">Do you offer heated floor installation? <span style="color:var(--gold);font-size:1.2rem;">+</span></summary>
+        <p style="margin-top:14px;color:#1e1c1a;line-height:1.8;font-size:0.9rem;">Yes. We install the Schluter Ditra Heat radiant floor heating system as part of our tile installations. This electric in-floor heating system is ideal for bathrooms, kitchens, and any tiled area. We recently completed a 1,200+ square foot whole-home floor tile installation with the Ditra Heat system throughout. Adding radiant heat during a tile installation is significantly more cost-effective than retrofitting later — ask us about including it in your project.</p>
+      </details>
+
+      <details style="padding:24px 0;">
+        <summary style="cursor:pointer;font-size:1rem;font-weight:500;color:var(--navy);letter-spacing:0.02em;list-style:none;display:flex;justify-content:space-between;align-items:center;">How do I get a free estimate? <span style="color:var(--gold);font-size:1.2rem;">+</span></summary>
+        <p style="margin-top:14px;color:#1e1c1a;line-height:1.8;font-size:0.9rem;">Simply fill out the contact form on this page, use our chat widget, or call Victor directly at (925) 699-8549. We'll schedule a time to visit your home, assess the project, and provide a detailed written estimate at no charge. Most estimates are completed within 2–3 business days of your request.</p>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+
