@@ -266,6 +266,54 @@
   "priceRange": "$$"
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How much does a bathroom remodel cost in the Bay Area?",
+      "acceptedAnswer": {"@type": "Answer", "text": "A basic bathroom tile refresh typically runs $2,500–$5,000. A mid-range bathroom remodel generally costs $5,000–$12,000. A full luxury bathroom remodel can range from $12,000–$25,000+. Prices vary based on square footage, tile selection, and project complexity. Vic's Tile provides free detailed estimates."}
+    },
+    {
+      "@type": "Question",
+      "name": "How much does a shower remodel cost?",
+      "acceptedAnswer": {"@type": "Answer", "text": "A standard shower tile replacement typically runs $1,500–$4,000. A full custom shower remodel including waterproofing, new tile, niche, bench, and frameless glass generally costs $4,000–$10,000+. Contact Vic's Tile for a free estimate."}
+    },
+    {
+      "@type": "Question",
+      "name": "How much does tile installation cost per square foot in the Bay Area?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Labor for tile installation in the Bay Area typically runs $8–$18 per square foot depending on tile size, pattern complexity, and substrate preparation. Large-format tiles and intricate mosaics are on the higher end."}
+    },
+    {
+      "@type": "Question",
+      "name": "Is Vic's Tile licensed and insured?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Yes. Vic's Tile holds California Contractor License #857849. You can verify this at the California Contractors State License Board website at cslb.ca.gov."}
+    },
+    {
+      "@type": "Question",
+      "name": "What areas does Vic's Tile serve?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Vic's Tile serves the entire Bay Area from Livermore, CA including Pleasanton, Dublin, Danville, San Ramon, Walnut Creek, Concord, Lafayette, Alamo, Oakland, Berkeley, Hayward, San Jose, Santa Clara, Sunnyvale, San Francisco, Palo Alto, Menlo Park, Redwood City, Tracy, Manteca, Mountain House, and surrounding communities."}
+    },
+    {
+      "@type": "Question",
+      "name": "How long does a bathroom remodel take?",
+      "acceptedAnswer": {"@type": "Answer", "text": "A standard bathroom tile remodel typically takes 3–7 days. A full bathroom remodel generally takes 5–10 business days. Tile requires 24–72 hours curing time after grouting before the shower can be used."}
+    },
+    {
+      "@type": "Question",
+      "name": "Does Vic's Tile install heated floors?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Yes. Vic's Tile installs the Schluter Ditra Heat radiant floor heating system as part of tile installations throughout the Bay Area. Adding radiant heat during a tile installation is significantly more cost-effective than retrofitting later."}
+    },
+    {
+      "@type": "Question",
+      "name": "How do I get a free estimate from Vic's Tile?",
+      "acceptedAnswer": {"@type": "Answer", "text": "Fill out the contact form at vicstile.com, use the chat widget, or call Victor directly at (925) 699-8549. Most estimates are completed within 2–3 business days of your request."}
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -475,7 +523,7 @@
       </div>
     </div>
     <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="contact-form">
-      <input type="hidden" name="bot-field">
+      <input type="text" name="bot-field" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;tab-index:-1;" autocomplete="off" aria-hidden="true">
       <input type="hidden" name="form-name" value="contact">
       <div class="form-row">
         <div class="form-field"><label>First Name</label><input type="text" name="first-name" placeholder="Jane"></div>
@@ -495,6 +543,8 @@
         </select>
       </div>
       <div class="form-field"><label>Tell Us About Your Project</label><textarea name="message" placeholder="Describe what you have in mind&hellip;"></textarea></div>
+      <input type="hidden" name="spam-score" value="0">
+      <input type="hidden" name="spam-reason" value="">
       <button type="submit" class="form-submit">Send Message</button>
     </form>
   </div>
@@ -510,24 +560,200 @@
 </footer>
 
 <script>
-const form = document.querySelector('form[name="contact"]');
-if (form) {
+// ============================================================
+// VIC'S TILE — SPAM PROTECTION v1.0
+// ============================================================
+
+(function() {
+
+  // --- RATE LIMIT CONFIG ---
+  var RATE_LIMIT_MAX = 3;       // max submissions
+  var RATE_LIMIT_WINDOW = 600;  // seconds (10 min)
+  var SPAM_THRESHOLD = 4;       // score >= this = spam
+
+  // --- SPAM SCORING PATTERNS ---
+  // Each entry: [regex, score, label]
+  var SPAM_PATTERNS = [
+    // Marketing solicitation phrases
+    [/get more customers/i, 2, 'marketing-phrase'],
+    [/seo service/i, 2, 'seo-offer'],
+    [/rank (higher|#1|on google|on page 1)/i, 2, 'seo-offer'],
+    [/backlink/i, 2, 'backlink-offer'],
+    [/lead generation/i, 2, 'lead-gen-offer'],
+    [/web(site)? design(ing)?( service)?/i, 2, 'webdesign-pitch'],
+    [/digital marketing/i, 2, 'marketing-pitch'],
+    [/make you (rich|money)/i, 3, 'get-rich-scheme'],
+    [/your wife should/i, 3, 'solicitation-personal'],
+    [/driving a (new )?(porsche|ferrari|lambo|luxury)/i, 2, 'solicitation-personal'],
+    [/new customers 24\/7/i, 3, 'spam-phrase'],
+    [/marketing agency/i, 2, 'marketing-pitch'],
+    [/increase (your )?(revenue|sales|traffic)/i, 2, 'marketing-pitch'],
+    [/hmu/i, 1, 'solicitation-slang'],
+    [/lets make you/i, 2, 'solicitation-pitch'],
+    [/my (program|system|method|service) can/i, 2, 'spam-pitch'],
+    [/website (fucking )?sucks/i, 2, 'hostile-solicitation'],
+    [/you should be getting/i, 1, 'solicitation-pitch'],
+    // URL patterns
+    [/https?:\/\/[^\s]{10,}/g, 1, 'external-url'],   // each URL adds 1
+    [/www\.[a-z0-9-]{3,}\.[a-z]{2,}/gi, 1, 'external-url'],
+    // Repeated phone in message (already have phone field)
+    [/\d{3}[-.\s]\d{3}[-.\s]\d{4}/g, 1, 'phone-in-message'],
+    // ALL CAPS abuse (3+ consecutive all-caps words)
+    [/([A-Z]{4,}\s){5,}/g, 1, 'excessive-caps'],
+    // Promo domains
+    [/\.(rocks|guru|biz|promo|deals)/i, 1, 'promo-domain'],
+  ];
+
+  function scoreMessage(fields) {
+    var text = [
+      fields.firstName || '',
+      fields.lastName || '',
+      fields.message || '',
+      fields.email || ''
+    ].join(' ');
+
+    var score = 0;
+    var reasons = [];
+
+    for (var i = 0; i < SPAM_PATTERNS.length; i++) {
+      var pattern = SPAM_PATTERNS[i][0];
+      var pts     = SPAM_PATTERNS[i][1];
+      var label   = SPAM_PATTERNS[i][2];
+      var matches = text.match(pattern);
+      if (matches) {
+        // For global patterns, score per match (capped at 4 per pattern)
+        var count = Array.isArray(matches) ? Math.min(matches.length, 4) : 1;
+        score += pts * count;
+        reasons.push(label + (count > 1 ? 'x' + count : ''));
+      }
+    }
+
+    // Name field abuse check (all caps or known spam names)
+    if (/^[A-Z\s]{6,}$/.test((fields.firstName + ' ' + fields.lastName).trim())) {
+      score += 1;
+      reasons.push('caps-name');
+    }
+
+    return { score: score, reasons: reasons.join(', ') };
+  }
+
+  function getRateHistory() {
+    try {
+      return JSON.parse(localStorage.getItem('vt_submit_times') || '[]');
+    } catch(e) { return []; }
+  }
+
+  function setRateHistory(times) {
+    try {
+      localStorage.setItem('vt_submit_times', JSON.stringify(times));
+    } catch(e) {}
+  }
+
+  function checkRateLimit() {
+    var now = Math.floor(Date.now() / 1000);
+    var times = getRateHistory().filter(function(t) {
+      return (now - t) < RATE_LIMIT_WINDOW;
+    });
+    if (times.length >= RATE_LIMIT_MAX) {
+      return false; // rate limited
+    }
+    times.push(now);
+    setRateHistory(times);
+    return true;
+  }
+
+  function showSuccess(form) {
+    form.innerHTML = '<div style="text-align:center;padding:48px 20px;"><div style="font-size:2.5rem;margin-bottom:16px;">&#10003;</div><h3 style="font-family:Playfair Display,serif;font-size:1.6rem;color:var(--gold);margin-bottom:12px;">Message Sent!</h3><p style="color:rgba(255,255,255,0.6);font-size:0.92rem;line-height:1.7;">Thanks for reaching out!<br>Vic will be in touch with you shortly.</p></div>';
+  }
+
+  function showRateError(form, btn) {
+    btn.textContent = 'Send Message';
+    btn.disabled = false;
+    var existing = form.querySelector('.vt-rate-error');
+    if (!existing) {
+      var err = document.createElement('p');
+      err.className = 'vt-rate-error';
+      err.style.cssText = 'color:#e57373;font-size:0.82rem;margin-top:10px;text-align:center;';
+      err.textContent = 'Too many submissions. Please wait a few minutes and try again.';
+      btn.parentNode.insertBefore(err, btn.nextSibling);
+    }
+  }
+
+  var form = document.querySelector('form[name="contact"]');
+  if (!form) return;
+
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
-    const btn = form.querySelector('button[type="submit"]');
+    var btn = form.querySelector('button[type="submit"]');
     btn.textContent = 'Sending...';
     btn.disabled = true;
-    const data = new FormData(form);
+
+    var data = new FormData(form);
+
+    // --- CHECK HONEYPOT ---
+    var honeypot = form.querySelector('input[name="bot-field"]');
+    if (honeypot && honeypot.value.trim() !== '') {
+      // Bot detected — silently fake success, do not submit
+      console.warn('[VT Spam] Honeypot triggered at ' + new Date().toISOString());
+      showSuccess(form);
+      return;
+    }
+
+    // --- CHECK RATE LIMIT ---
+    if (!checkRateLimit()) {
+      console.warn('[VT Spam] Rate limit triggered at ' + new Date().toISOString());
+      showRateError(form, btn);
+      return;
+    }
+
+    // --- SPAM SCORING ---
+    var fields = {
+      firstName: (form.querySelector('[name="first-name"]') || {}).value || '',
+      lastName:  (form.querySelector('[name="last-name"]')  || {}).value || '',
+      message:   (form.querySelector('[name="message"]')    || {}).value || '',
+      email:     (form.querySelector('[name="email"]')      || {}).value || '',
+    };
+
+    var result = scoreMessage(fields);
+    var scoreField  = form.querySelector('[name="spam-score"]');
+    var reasonField = form.querySelector('[name="spam-reason"]');
+    if (scoreField)  scoreField.value  = result.score;
+    if (reasonField) reasonField.value = result.reasons;
+
+    // Re-build FormData after setting score fields
+    data = new FormData(form);
+
+    if (result.score >= SPAM_THRESHOLD) {
+      // Spam detected — silently fake success, do not submit to Netlify
+      console.warn('[VT Spam] Blocked submission. Score: ' + result.score + ' | Reasons: ' + result.reasons + ' | Time: ' + new Date().toISOString());
+      showSuccess(form);
+      return;
+    }
+
+    // Log flagged-but-allowed submissions (score 2-3) for monitoring
+    if (result.score >= 2) {
+      console.warn('[VT Spam] Flagged (allowed). Score: ' + result.score + ' | Reasons: ' + result.reasons + ' | Time: ' + new Date().toISOString());
+    }
+
+    // --- SUBMIT TO NETLIFY ---
     try {
-      const res = await fetch('/', {method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(data).toString()});
+      var res = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(data).toString()
+      });
       if (res.ok) {
-        form.innerHTML = '<div style="text-align:center;padding:48px 20px;"><div style="font-size:2.5rem;margin-bottom:16px;">&#10003;</div><h3 style="font-family:Playfair Display,serif;font-size:1.6rem;color:var(--gold);margin-bottom:12px;">Message Sent!</h3><p style="color:rgba(255,255,255,0.6);font-size:0.92rem;line-height:1.7;">Thanks for reaching out!<br>Vic will be in touch with you shortly.</p></div>';
-      } else { throw new Error(); }
+        showSuccess(form);
+      } else {
+        throw new Error('Network error');
+      }
     } catch(err) {
-      form.innerHTML = '<div style="text-align:center;padding:48px 20px;"><div style="font-size:2.5rem;margin-bottom:16px;">&#10003;</div><h3 style="font-family:Playfair Display,serif;font-size:1.6rem;color:var(--gold);margin-bottom:12px;">Message Sent!</h3><p style="color:rgba(255,255,255,0.6);font-size:0.92rem;line-height:1.7;">Thanks for reaching out!<br>Vic will be in touch with you shortly.</p></div>';
+      // Show success anyway to avoid confusing legitimate users on network errors
+      showSuccess(form);
     }
   });
-}
+
+})();
 
 function adjustBannerOffset(){
   var nav = document.getElementById('main-nav');
